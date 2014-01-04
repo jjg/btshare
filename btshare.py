@@ -3,18 +3,19 @@
 import os
 import smtplib
 import mimetypes
+import ConfigParser
 from flask import Flask
 from flask import request
 
-# config
-SHARE_ROOT = ''
-SERVER_HOST = ''
-SERVER_EMAIL_ADDRESS = ''
-SERVER_EMAIL_PASSWORD = ''
-SMTP_SERVER = ''
-SMTP_PORT = ''
-BTSYNC_HOST = ''
-BTSYNC_PORT = ''
+IMAP_SERVER = config.get('mailserver', 'imap_server')
+SMTP_SERVER = config.get('mailserver', 'smtp_server')
+SMTP_PORT = config.get('mailserver', 'smtp_port')
+EMAIL_ADDRESS = config.get('mailserver', 'email_address')
+EMAIL_PASSWORD = config.get('mailserver', 'email_password')
+WEB_HOST = config.get('webserver', 'web_hostname')
+SHARE_ROOT = config.get('webserver', 'share_root')
+BTSYNC_HOST = config.get('btsync', 'btsync_host')
+BTSYNC_PORT = config.get('btsync', 'btsync_port')
 
 
 
@@ -62,7 +63,7 @@ def share():
 		# TODO: authenticate user
 		
 		# create share folder
-		os.makedirs(share_root + secret)
+		os.makedirs(SHARE_ROOT + secret)
 		
 		# TODO: enable sync
 		# ex:
@@ -76,4 +77,8 @@ def share():
 
 	
 if __name__ == '__main__':
+	# load config
+	config = ConfigParser.RawConfigParser()
+	config.read('btshare.cfg')
+	
 	app.run()

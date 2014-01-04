@@ -1,0 +1,15 @@
+[mailserver]
+imap_server: 
+smtp_server: 
+smtp_port: 
+email_address: 
+email_password: 
+
+[webserver]
+web_hostname: 
+share_root: 
+
+[btsync]
+btsync_host:
+btsync_port:
+

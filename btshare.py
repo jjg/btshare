@@ -73,9 +73,7 @@ def share():
 		new_share_fs_path = SHARE_ROOT + secret
 		os.makedirs(new_share_fs_path)
 		
-		# TODO: enable sync
-		# ex:
-		# http://[address]:[port]/api?method=add_folder&dir=(folderPath)[&secret=(secret)&selective_sync=1]
+		# enable sync
 		api_url = '/api?method=add_folder&dir=%s&secret=%s' % (new_share_fs_path, secret)
 		
 		# debug

@@ -16,6 +16,7 @@ WEB_HOST = config.get('webserver', 'web_hostname')
 SHARE_ROOT = config.get('webserver', 'share_root')
 BTSYNC_HOST = config.get('btsync', 'btsync_host')
 BTSYNC_PORT = config.get('btsync', 'btsync_port')
+BTSYNC_API_KEY = config.get('btsync', 'btsync_api_key')
 
 
 app = Flask(__name__)
@@ -47,6 +48,7 @@ def user():
 @app.route('/share', methods=['POST'])
 def share():
 	if request.method == 'POST':
+	
 		#
 		# create a new share
 		#
@@ -57,6 +59,7 @@ def share():
 		print request.form['secret']
 		print request.form['guestemail']
 		
+		owner_email = request.form['owneremail']
 		secret = request.form['secret']
 		
 		# TODO: authenticate user
@@ -68,7 +71,10 @@ def share():
 		# ex:
 		# http://[address]:[port]/api?method=add_folder&dir=(folderPath)[&secret=(secret)&selective_sync=1]
 		
-		# TODO: email link to owner & guests
+		# email link to owner & guests (probably shouldn't email secret...)
+		message = 'Your files are shared here:\n\n http://%s/shares/%s/' % (WEB_HOST, secret)
+		
+		send_notification(owner_email, 'Your btshare ready!', message)
 		
 		return 'ok'
 	else:

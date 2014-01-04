@@ -6,7 +6,12 @@ import mimetypes
 import ConfigParser
 from flask import Flask
 from flask import request
+from email.mime.text import MIMEText
 
+# load config
+config = ConfigParser.RawConfigParser()
+config.read('btshare.cfg')
+	
 IMAP_SERVER = config.get('mailserver', 'imap_server')
 SMTP_SERVER = config.get('mailserver', 'smtp_server')
 SMTP_PORT = config.get('mailserver', 'smtp_port')
@@ -18,8 +23,6 @@ BTSYNC_HOST = config.get('btsync', 'btsync_host')
 BTSYNC_PORT = config.get('btsync', 'btsync_port')
 BTSYNC_API_KEY = config.get('btsync', 'btsync_api_key')
 
-
-app = Flask(__name__)
 
 def send_notification(destination_email, subject, message):
 	# assemble email
@@ -36,10 +39,11 @@ def send_notification(destination_email, subject, message):
 	s.sendmail(EMAIL_ADDRESS, destination_email, message.as_string())
 	s.quit()
 	
-	
+app = Flask(__name__)
+
 @app.route('/')
 def hello_world():
-	return 'Hello Jerk!'
+	return 'hello jerk!'
 	
 @app.route('/user')
 def user():
@@ -82,8 +86,4 @@ def share():
 
 	
 if __name__ == '__main__':
-	# load config
-	config = ConfigParser.RawConfigParser()
-	config.read('btshare.cfg')
-	
-	app.run()
+	app.run(debug=True)

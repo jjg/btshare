@@ -4,6 +4,7 @@ import os
 import smtplib
 import mimetypes
 import ConfigParser
+import httplib
 from flask import Flask
 from flask import request
 from email.mime.text import MIMEText
@@ -69,11 +70,27 @@ def share():
 		# TODO: authenticate user
 		
 		# create share folder
-		os.makedirs(SHARE_ROOT + secret)
+		new_share_fs_path = SHARE_ROOT + secret
+		os.makedirs(new_share_fs_path)
 		
 		# TODO: enable sync
 		# ex:
 		# http://[address]:[port]/api?method=add_folder&dir=(folderPath)[&secret=(secret)&selective_sync=1]
+		api_url = '/api?method=add_folder&dir=%s&secret=%s' % (new_share_fs_path, secret)
+		
+		# debug
+		print(api_url)
+		
+		API_CONNECTION = httplib.HTTPConnection(BTSYNC_HOST)
+		API_CONNECTION.request('GET', api_url)
+		
+		# TODO: something reasonable based on the response (if error, etc.)
+		response = API_CONNECTION.getresponse()
+		raw_response = response.read()
+		API_CONNECTION.close()
+		
+		# debug
+		print(raw_response)
 		
 		# email link to owner & guests (probably shouldn't email secret...)
 		message = 'Your files are shared here:\n\n http://%s/shares/%s/' % (WEB_HOST, secret)

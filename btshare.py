@@ -81,21 +81,29 @@ def share():
 		# debug
 		print(api_url)
 		
-		API_CONNECTION = httplib.HTTPConnection(BTSYNC_HOST)
-		API_CONNECTION.request('GET', api_url)
+		message = ''
 		
-		# TODO: something reasonable based on the response (if error, etc.)
-		response = API_CONNECTION.getresponse()
-		raw_response = response.read()
-		API_CONNECTION.close()
+		try:
+			API_CONNECTION = httplib.HTTPConnection(BTSYNC_HOST)
+			API_CONNECTION.request('GET', api_url)
+			
+			# TODO: something reasonable based on the response (if error, etc.)
+			response = API_CONNECTION.getresponse()
+			raw_response = response.read()
+			API_CONNECTION.close()
+			
+			# debug
+			print(raw_response)
+			
+			# email link to owner & guests (probably shouldn't email secret...)
+			message = 'Your files are shared here:\n\n http://%s/shares/%s/' % (WEB_HOST, secret)
 		
-		# debug
-		print(raw_response)
+		except:
+			print('error contacting btsync api')
+
+			message = 'There was an error sharing your files.'
 		
-		# email link to owner & guests (probably shouldn't email secret...)
-		message = 'Your files are shared here:\n\n http://%s/shares/%s/' % (WEB_HOST, secret)
-		
-		send_notification(owner_email, 'Your btshare ready!', message)
+		send_notification(owner_email, 'Status of your btshare', message)
 		
 		return 'ok'
 	else:

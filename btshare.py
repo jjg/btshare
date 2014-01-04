@@ -18,7 +18,6 @@ BTSYNC_HOST = config.get('btsync', 'btsync_host')
 BTSYNC_PORT = config.get('btsync', 'btsync_port')
 
 
-
 app = Flask(__name__)
 
 def send_notification(destination_email, subject, message):

@@ -5,6 +5,8 @@ import smtplib
 import mimetypes
 import ConfigParser
 import httplib
+import urllib
+import base64
 from flask import Flask
 from flask import request
 from email.mime.text import MIMEText
@@ -23,6 +25,8 @@ SHARE_ROOT = config.get('webserver', 'share_root')
 BTSYNC_HOST = config.get('btsync', 'btsync_host')
 BTSYNC_PORT = config.get('btsync', 'btsync_port')
 BTSYNC_API_KEY = config.get('btsync', 'btsync_api_key')
+BTSYNC_API_USER = config.get('btsync', 'btsync_api_user')
+BTSYNC_API_PASS = config.get('btsync', 'btsync_api_pass')
 
 
 def send_notification(destination_email, subject, message):
@@ -75,15 +79,17 @@ def share():
 		
 		# enable sync
 		api_url = '/api?method=add_folder&dir=%s&secret=%s' % (new_share_fs_path, secret)
-		
-		# debug
-		print(api_url)
-		
+	
+		# basic auth stuff
+		auth = base64.encodestring('%s:%s' % (BTSYNC_API_USER, BTSYNC_API_PASS)).replace('\n', '')	
 		message = ''
 		
 		try:
-			API_CONNECTION = httplib.HTTPConnection(BTSYNC_HOST)
-			API_CONNECTION.request('GET', api_url)
+			params = ''	
+			headers = {'Authorization': 'Basic %s' % auth}
+
+			API_CONNECTION = httplib.HTTPConnection(BTSYNC_HOST + ':' + BTSYNC_PORT)
+			API_CONNECTION.request('GET', api_url, params, headers)
 			
 			# TODO: something reasonable based on the response (if error, etc.)
 			response = API_CONNECTION.getresponse()
@@ -109,4 +115,4 @@ def share():
 
 	
 if __name__ == '__main__':
-	app.run(debug=True)
+	app.run()

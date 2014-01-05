@@ -13,4 +13,6 @@ share_root:
 btsync_host:
 btsync_port:
 btsync_api_key:
+btsync_api_user: 
+btsync_api_pass: 
 

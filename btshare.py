@@ -62,12 +62,6 @@ def share():
 		# create a new share
 		#
 		
-		# debug
-		print request.form['owneremail']
-		print request.form['password']
-		print request.form['secret']
-		print request.form['guestemail']
-		
 		owner_email = request.form['owneremail']
 		secret = request.form['secret']
 		

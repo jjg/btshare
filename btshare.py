@@ -10,6 +10,7 @@ import base64
 from flask import Flask
 from flask import request
 from email.mime.text import MIMEText
+from flask import render_template
 
 # load config
 config = ConfigParser.RawConfigParser()
@@ -54,8 +55,8 @@ def hello_world():
 def user():
 	return 'not implemented'
 	
-@app.route('/share', methods=['POST'])
-def share():
+@app.route('/share', methods=['POST','GET'])
+def share(shared=None):
 	if request.method == 'POST':
 	
 		#
@@ -65,11 +66,15 @@ def share():
 		owner_email = request.form['owneremail']
 		secret = request.form['secret']
 		
+		# debug
+		print owner_email
+		
 		# TODO: authenticate user
 		
 		# create share folder
 		new_share_fs_path = SHARE_ROOT + secret
-		os.makedirs(new_share_fs_path)
+		if not os.path.exists(new_share_fs_path):
+			os.makedirs(new_share_fs_path)
 		
 		# enable sync
 		api_url = '/api?method=add_folder&dir=%s&secret=%s' % (new_share_fs_path, secret)
@@ -103,10 +108,11 @@ def share():
 		
 		send_notification(owner_email, 'Status of your btshare', message)
 		
-		return 'ok'
+		return render_template('share.html', shared=True)
+	
 	else:
-		show_share_form()
+		return render_template('share.html')
 
 	
 if __name__ == '__main__':
-	app.run()
+	app.run(debug=True)

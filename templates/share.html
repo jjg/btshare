@@ -1,0 +1,16 @@
+<!doctype html>
+<title>Share</title>
+{% if shared %}
+  <h1>Thanks for sharing!</h1>
+{% else %}
+  <h1>Share something!</h1>
+  <form method="post" action="/share">
+  	<table>
+  		<tr><td>secret:</td><td><input id="secret" name="secret" type="text"></input></td></tr>
+  		<tr><td>your email:</td><td><input id="owneremail" name="owneremail" type="text"></input></td></tr>
+  		<tr><td>your password:</td><td><input id="password" name="password" type="password"></input></td></tr>
+  		<tr><td>email to share with:</td><td><input id="guestemail" name="guestemail" type="text"></input></td></tr>
+  		<tr><td colspan="2" align="right"><input type="submit" value="share"></input></td></tr>
+  	</table>
+  </form>
+{% endif %}

@@ -1,6 +1,15 @@
 <!doctype html>
 <title>Share</title>
-{% if shared %}
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+{% if shared=="success" %}
   <h1>Thanks for sharing!</h1>
 {% else %}
   <h1>Share something!</h1>

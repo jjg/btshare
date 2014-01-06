@@ -11,6 +11,8 @@ from flask import Flask
 from flask import request
 from email.mime.text import MIMEText
 from flask import render_template
+from flask import session
+from flask import flash
 
 # load config
 config = ConfigParser.RawConfigParser()
@@ -63,56 +65,60 @@ def share(shared=None):
 		# create a new share
 		#
 		
-		owner_email = request.form['owneremail']
 		secret = request.form['secret']
-		
-		# debug
-		print owner_email
+		owner_email = request.form['owneremail']
+		password = request.form['password']
 		
 		# TODO: authenticate user
+		if password == 'awesome':
 		
-		# create share folder
-		new_share_fs_path = SHARE_ROOT + secret
-		if not os.path.exists(new_share_fs_path):
-			os.makedirs(new_share_fs_path)
+			# create share folder
+			new_share_fs_path = SHARE_ROOT + secret
+			if not os.path.exists(new_share_fs_path):
+				os.makedirs(new_share_fs_path)
+			
+			# enable sync
+			api_url = '/api?method=add_folder&dir=%s&secret=%s' % (new_share_fs_path, secret)
 		
-		# enable sync
-		api_url = '/api?method=add_folder&dir=%s&secret=%s' % (new_share_fs_path, secret)
+			# basic auth stuff
+			auth = base64.encodestring('%s:%s' % (BTSYNC_API_USER, BTSYNC_API_PASS)).replace('\n', '')	
+			message = ''
+			
+			try:
+				params = ''	
+				headers = {'Authorization': 'Basic %s' % auth}
 	
-		# basic auth stuff
-		auth = base64.encodestring('%s:%s' % (BTSYNC_API_USER, BTSYNC_API_PASS)).replace('\n', '')	
-		message = ''
-		
-		try:
-			params = ''	
-			headers = {'Authorization': 'Basic %s' % auth}
-
-			API_CONNECTION = httplib.HTTPConnection(BTSYNC_HOST + ':' + BTSYNC_PORT)
-			API_CONNECTION.request('GET', api_url, params, headers)
+				API_CONNECTION = httplib.HTTPConnection(BTSYNC_HOST + ':' + BTSYNC_PORT)
+				API_CONNECTION.request('GET', api_url, params, headers)
+				
+				# TODO: something reasonable based on the response (if error, etc.)
+				response = API_CONNECTION.getresponse()
+				raw_response = response.read()
+				API_CONNECTION.close()
+				
+				# debug
+				print(raw_response)
+				
+				# email link to owner & guests (probably shouldn't email secret...)
+				message = 'Your files are shared here:\n\n http://%s/shares/%s/' % (WEB_HOST, secret)
 			
-			# TODO: something reasonable based on the response (if error, etc.)
-			response = API_CONNECTION.getresponse()
-			raw_response = response.read()
-			API_CONNECTION.close()
+			except:
+				print('error contacting btsync api')
+	
+				message = 'There was an error sharing your files.'
 			
-			# debug
-			print(raw_response)
+			send_notification(owner_email, 'Status of your btshare', message)
 			
-			# email link to owner & guests (probably shouldn't email secret...)
-			message = 'Your files are shared here:\n\n http://%s/shares/%s/' % (WEB_HOST, secret)
+			return render_template('share.html', shared='success')
 		
-		except:
-			print('error contacting btsync api')
-
-			message = 'There was an error sharing your files.'
-		
-		send_notification(owner_email, 'Status of your btshare', message)
-		
-		return render_template('share.html', shared=True)
+		else:
+			flash('login failure')
+			return render_template('share.html', shared='fail')
 	
 	else:
 		return render_template('share.html')
 
+app.secret_key = 'A0Kr98j/3yX R~XHH!jmN]LWX/,?RT'
 	
 if __name__ == '__main__':
 	app.run(debug=True)
